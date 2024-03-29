@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/ethanjmarchand/learnhtmx/context"
-	"github.com/ethanjmarchand/learnhtmx/models"
+	"github.com/ethanjmarchand/learnhtmx/internal/context"
+	"github.com/ethanjmarchand/learnhtmx/internal/models"
 	"github.com/gorilla/csrf"
 )
 
@@ -53,12 +53,16 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 	}, nil
 }
 
-// Template type gives us the ability to write our own template functions on the *template.Template type.
+// Template type gives us the ability to write our own template functions on the
+// *template.Template type.
 type Template struct {
 	htmlTpl *template.Template
 }
 
-// Execute is a method on the Template type that takes a http.ResponseWriter, a *http.Request and data, and writes to bytes.Buffer, but only to catch an error in our tpl.Funcs before setting the header for the user. At the very end, io.Copy copies the &buf and writes to w.
+// Execute is a method on the Template type that takes a http.ResponseWriter,
+// a *http.Request and data, and writes to bytes.Buffer, but only to catch an
+// error in our tpl.Funcs before setting the header for the user. At the very
+// end, io.Copy copies the &buf and writes to w.
 func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface{}, errs ...error) {
 	tpl, err := t.htmlTpl.Clone()
 	if err != nil {
@@ -71,7 +75,7 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 		"csrfField": func() template.HTML {
 			return csrf.TemplateField(r)
 		},
-		"currentUser": func() *models.User {
+		"currentUser": func() *models.Contact {
 			return context.User(r.Context())
 		},
 		"errors": func() []string {
@@ -86,9 +90,14 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 		http.Error(w, "There was an error executing the template", http.StatusInternalServerError)
 		return
 	}
-	io.Copy(w, &buf)
+
+	_, err = io.Copy(w, &buf)
+	if err != nil {
+		panic(err)
+	}
 }
 
+// errMessages() take a variadic parameter, and return a string slice.
 func errMessages(errs ...error) []string {
 	var msgs []string
 	for _, err := range errs {

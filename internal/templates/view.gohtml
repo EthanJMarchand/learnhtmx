@@ -1,0 +1,12 @@
+{{ define "page" }}
+  <h1>{{ .Name }}</h1>
+  <div>
+    <div>Phone: {{ .Phone }}</div>
+    <div>Email: {{ .Email }}</div>
+  </div>
+
+  <p>
+    <a href="/contacts/{{ .ID }}/edit">Edit</a>
+    <a href="/contacts">Back</a>
+  </p>
+{{ end }}

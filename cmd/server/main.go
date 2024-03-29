@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/ethanjmarchand/learnhtmx/controllers"
-	"github.com/ethanjmarchand/learnhtmx/migrations"
-	"github.com/ethanjmarchand/learnhtmx/models"
-	"github.com/ethanjmarchand/learnhtmx/templates"
-	"github.com/ethanjmarchand/learnhtmx/views"
+	"github.com/ethanjmarchand/learnhtmx/internal/controllers"
+	"github.com/ethanjmarchand/learnhtmx/internal/migrations"
+	"github.com/ethanjmarchand/learnhtmx/internal/models"
+	"github.com/ethanjmarchand/learnhtmx/internal/templates"
+	"github.com/ethanjmarchand/learnhtmx/internal/views"
 	"github.com/joho/godotenv"
 )
 
@@ -82,10 +82,22 @@ func run(cfg config) error {
 	}
 
 	contactsC.Templates.Contacts = views.Must(views.ParseFS(templates.FS, "layout.gohtml", "contacts.gohtml"))
+	contactsC.Templates.New = views.Must(views.ParseFS(templates.FS, "layout.gohtml", "new.gohtml"))
+	contactsC.Templates.View = views.Must(views.ParseFS(templates.FS, "layout.gohtml", "view.gohtml"))
+	contactsC.Templates.Edit = views.Must(views.ParseFS(templates.FS, "layout.gohtml", "edit.gohtml"))
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", contactsC.Redirect)
 	mux.HandleFunc("GET /contacts", contactsC.Show)
+	mux.HandleFunc("GET /contacts/new", contactsC.New)
+	mux.HandleFunc("POST /contacts/new", contactsC.ProcessNew)
+	mux.HandleFunc("GET /contacts/{id}", contactsC.View)
+	mux.HandleFunc("GET /contacts/{id}/edit", contactsC.Edit)
+	mux.HandleFunc("POST /contacts/{id}/edit", contactsC.ProcessEdit)
+	mux.HandleFunc("DELETE /contacts/{id}", contactsC.Delete)
+
+	assetsHandler := http.FileServer(http.Dir("assets"))
+	mux.HandleFunc("GET /assets/*", http.StripPrefix("/assets", assetsHandler).ServeHTTP)
 
 	fmt.Printf("Starting server on port %s", cfg.Server.Address)
 	err = http.ListenAndServe(cfg.Server.Address, mux)

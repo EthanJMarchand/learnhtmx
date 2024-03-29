@@ -3,14 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/htmx.min.js"></script>
+</head>
   <title>Ethan's HTMX Playground</title>
 </head>
-<body>
+<body hx-boost="true">
   <header>
     <nav>
       <h1>Learn HTMX</h1>
     </nav>
   </header>
+  {{ if .Message}}<p class="success">{{ .Message }}</p>{{ end }}
+  {{ if errors }}
+		<div>
+			{{ range errors }}
+        <p class="error">{{ . }}</p>
+      {{ end }}
+    </div>
+  {{ end }}
   {{ template "page" . }}
   <footer>
     <div>

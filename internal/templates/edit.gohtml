@@ -1,0 +1,32 @@
+{{ define "page" }}
+<form action="/contacts/{{ .ID }}/edit" method="post">
+  <fieldset>
+    <legend>Edit contact</legend>
+    <p>
+      <label for="name">Name</label>
+      <input name="name" id="name" type="text" placeholder="Name"
+              value="{{ .Name }}">
+      <span class="error">{{ .Errors.Name }}</span>
+    </p>
+    <p>
+        <label for="phone">Phone</label>
+        <input name="phone" id="phone" type="text" placeholder="Phone" value="{{ .Phone }}">
+        <span class="error">{{ .Errors.Phone }}</span>
+    </p>
+    <p>
+        <label for="email">Email</label>
+        <input name="email" id="email" type="text" placeholder="Email" value="{{ .Email }}">
+        <span class="error">{{ .Errors.Email }}</span>
+    </p>  
+    <button>Save</button>
+  </fieldset>
+  </form>
+  <button hx-delete="/contacts/{{ .ID }}"
+    hx-target="body"
+    hx-push-url="true"
+    hx-confirm="Cannot be undone; Are you sure you want to delete?"
+  >Delete Contact</button>
+  <p>
+    <a href="/contacts/">Back</a>
+  </p>
+{{ end }}
