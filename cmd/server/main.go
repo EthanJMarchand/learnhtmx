@@ -71,14 +71,13 @@ func run(cfg config) error {
 		return err
 	}
 	// setup services
-	userService := &models.UserService{
-		DB: db,
-	}
+	postgresContactRepo := models.NewPostgresContactRepo(db)
+	contactService := models.NewContactService(postgresContactRepo)
 
 	// Setup Controllers, and pass the services in.
 
 	contactsC := controllers.Contacts{
-		UserService: userService,
+		ContactService: contactService,
 	}
 
 	contactsC.Templates.Contacts = views.Must(views.ParseFS(templates.FS, "layout.gohtml", "contacts.gohtml"))

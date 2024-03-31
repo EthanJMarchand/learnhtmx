@@ -47,12 +47,18 @@ func nums(s string) string {
 	}, s)
 }
 
-type UserService struct {
+type PostgresContactRepo struct {
 	DB *sql.DB
 }
 
+func NewPostgresContactRepo(db *sql.DB) *PostgresContactRepo {
+	return &PostgresContactRepo{
+		DB: db,
+	}
+}
+
 // Create is a method on a *UserService that takes an email, and password string and returns a *User, and an error. The function changes the email to lowercase, hashes the password, creates the user, then queries the DB to store the email and passwordhash
-func (us *UserService) Read(name string) (*[]Contact, error) {
+func (us *PostgresContactRepo) Read(name string) (*[]Contact, error) {
 	rows, err := us.DB.Query(`
 	SELECT *
 	FROM contacts
@@ -81,7 +87,7 @@ func (us *UserService) Read(name string) (*[]Contact, error) {
 	return &users, nil
 }
 
-func (us *UserService) ReadAll() (*[]Contact, error) {
+func (us *PostgresContactRepo) ReadAll() (*[]Contact, error) {
 	rows, err := us.DB.Query(`
 	SELECT *
 	FROM contacts
@@ -105,7 +111,7 @@ func (us *UserService) ReadAll() (*[]Contact, error) {
 	return &users, nil
 }
 
-func (us *UserService) GetContact(id int) (*Contact, error) {
+func (us *PostgresContactRepo) GetContact(id int) (*Contact, error) {
 	contact := Contact{}
 	row := us.DB.QueryRow(`
 		SELECT id, name, email, phone
@@ -121,7 +127,7 @@ func (us *UserService) GetContact(id int) (*Contact, error) {
 	return &contact, nil
 }
 
-func (us *UserService) New(contact *Contact) error {
+func (us *PostgresContactRepo) New(contact *Contact) error {
 	_, err := us.DB.Exec(`
 		INSERT INTO contacts (name, email, phone)
 		VALUES ($1, $2, $3);`, contact.Name, contact.Email, contact.Phone)
@@ -135,7 +141,7 @@ func (us *UserService) New(contact *Contact) error {
 	return nil
 }
 
-func (us *UserService) Update(contact *Contact) error {
+func (us *PostgresContactRepo) Update(contact *Contact) error {
 	_, err := us.DB.Exec(`
 		UPDATE contacts
 		SET name = $2, phone = $3, email = $4
@@ -146,7 +152,7 @@ func (us *UserService) Update(contact *Contact) error {
 	return nil
 }
 
-func (us *UserService) Delete(contact *Contact) error {
+func (us *PostgresContactRepo) Delete(contact *Contact) error {
 	_, err := us.DB.Exec(`
 		DELETE FROM contacts
 		WHERE id = $1;`, contact.ID)
