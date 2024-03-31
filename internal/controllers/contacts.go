@@ -112,14 +112,14 @@ func (c Contacts) ProcessNew(w http.ResponseWriter, r *http.Request) {
 
 // View is the handler function that handles the GET request for a specific contact
 func (c Contacts) View(w http.ResponseWriter, r *http.Request) {
-	// TODO: Question, is this the easiest way to get the ID out of a url path when
-	// using the standard library?
-	urlParts := strings.Split(r.URL.Path, "/")
-	id, err := strconv.Atoi(urlParts[len(urlParts)-1])
+	sid := r.PathValue("id")
+	if sid == "" {
+		http.Error(w, "Must provide a valid ID", http.StatusInternalServerError)
+	}
+	id, err := strconv.Atoi(sid)
 	if err != nil {
-		fmt.Printf("View(): err = %s", err)
+		fmt.Println("strconv error")
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
-		return
 	}
 	// lookup the contact in the DB
 	contact, err := c.UserService.GetContact(id)
@@ -135,13 +135,14 @@ func (c Contacts) View(w http.ResponseWriter, r *http.Request) {
 
 // Edit is the handler function that handles a GET request to the /contacts/{id}/edit route.
 func (c Contacts) Edit(w http.ResponseWriter, r *http.Request) {
-	urlParts := strings.Split(r.URL.Path, "/")
-	//  TODO: Check to see if URL parts is Empty
-	id, err := strconv.Atoi(urlParts[len(urlParts)-2])
+	sid := r.PathValue("id")
+	if sid == "" {
+		http.Error(w, "Must provide a valid ID", http.StatusInternalServerError)
+	}
+	id, err := strconv.Atoi(sid)
 	if err != nil {
-		fmt.Printf("Edit(): err = %s", err)
+		fmt.Println("strconv error")
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
-		return
 	}
 	contact := models.Contact{
 		ID: id,
