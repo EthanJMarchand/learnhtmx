@@ -10,11 +10,11 @@ type ContactRepo interface {
 }
 
 type ContactService struct {
-	repo ContactRepo
+	Repo ContactRepo
 }
 
 func NewContactService(cr ContactRepo) *ContactService {
 	return &ContactService{
-		repo: cr,
+		Repo: cr,
 	}
 }

@@ -44,7 +44,7 @@ func (c Contacts) Show(w http.ResponseWriter, r *http.Request) {
 	data.Query = r.FormValue("q")
 	if data.Query == "" {
 		// fetch and render all the contacts
-		users, err := c.ContactService.ReadAll()
+		users, err := c.ContactService.Repo.ReadAll()
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				err = errors.Public(err, "No results")
@@ -60,7 +60,7 @@ func (c Contacts) Show(w http.ResponseWriter, r *http.Request) {
 	}
 	// try to find a first name, or last name that matches anything like the q
 	// and present them to the screen.
-	users, err := c.ContactService.Read(data.Query)
+	users, err := c.ContactService.Repo.Read(data.Query)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = errors.Public(err, "No results")
@@ -100,7 +100,7 @@ func (c Contacts) ProcessNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// store in the DB.
-	err := c.ContactService.New(&contact)
+	err := c.ContactService.Repo.New(&contact)
 	if err != nil {
 		fmt.Printf("ProcessNew() error: %s", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
@@ -122,7 +122,7 @@ func (c Contacts) View(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 	}
 	// lookup the contact in the DB
-	contact, err := c.ContactService.GetContact(id)
+	contact, err := c.ContactService.Repo.GetContact(id)
 	if err != nil {
 		fmt.Printf("View(): GetContact(): err = %s", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
@@ -149,7 +149,7 @@ func (c Contacts) Edit(w http.ResponseWriter, r *http.Request) {
 	}
 	// lookup the contact in the DB
 	// Use a mock user service. ************
-	con, err := c.ContactService.GetContact(contact.ID)
+	con, err := c.ContactService.Repo.GetContact(contact.ID)
 	if err != nil {
 		fmt.Printf("Edit(): GetContact(): err = %s", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
@@ -177,7 +177,7 @@ func (c Contacts) ProcessEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Update the db.
-	err = c.ContactService.Update(&contact)
+	err = c.ContactService.Repo.Update(&contact)
 	if err != nil {
 		fmt.Printf("ProcessEdit() err: %s", err)
 	}
@@ -198,7 +198,7 @@ func (c Contacts) Delete(w http.ResponseWriter, r *http.Request) {
 	con := models.Contact{
 		ID: id,
 	}
-	err = c.ContactService.Delete(&con)
+	err = c.ContactService.Repo.Delete(&con)
 	if err != nil {
 		fmt.Printf("Delete() err: %s", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
